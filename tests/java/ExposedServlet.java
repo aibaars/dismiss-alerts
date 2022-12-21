@@ -37,7 +37,7 @@ public class ExposedServlet extends HttpServlet {
 
 		// BAD: typical XSS, this time written to an OutputStream instead of a Writer 
 		// codeql
-		response.getOutputStream().write(request.getPathInfo().getBytes()); /* Replace special characters in the given text such that it can be inserted into an HTML file and not be interpreted as including any HTML tags. */
+		response.getOutputStream().write(request.getPathInfo().getBytes()); /* Replace special characters in the given text such that it can be inserted into an HTML file and not be interpreted as including any HTML tags. */ //  lgtm
 	}
 	
 
