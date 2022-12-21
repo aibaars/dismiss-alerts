@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["java", "javascript", "cpp", "csharp", "go", "ruby", "python"]
+        language:
+          ["java", "javascript", "cpp", "csharp", "go", "ruby", "python"]
 
     steps:
       - name: Checkout repository
@@ -21,37 +22,35 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: ${{ matrix.language }}
-          packs: advanced-security-demo/${{ matrix.language }}-alert-suppression
-          
+          packs: codeql/${{ matrix.language }}-queries:AlertSuppression.ql
+
       - name: Build java
         if: ${{ matrix.language == 'java' }}
         run: |
           tests/java/build
-        
+
       - name: Build cpp
         if: ${{ matrix.language == 'cpp' }}
-        run: | 
+        run: |
           cd tests/cpp/
           make add-user
-      
+
       - name: Build csharp
         if: ${{ matrix.language == 'csharp' }}
         run: |
           cd tests/csharp
           dotnet build
 
- 
       - name: Perform CodeQL Analysis
         id: analyze
         uses: github/codeql-action/analyze@v2
         with:
           output: ${{ matrix.language }}-sarif-results
-         
+
       - name: dismiss-alerts
-        uses: ./
+        uses: aibaars/dismiss-alerts@unsuppress
         with:
           sarif-id: ${{ steps.analyze.outputs.sarif-id }}
           sarif-file: ${{ matrix.language }}-sarif-results/${{ matrix.language }}.sarif
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          
